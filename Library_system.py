@@ -87,4 +87,14 @@ class LibraryStaff:
         return self.pay
     
 
+class overdue_books(Books):
+    def __init__(self, book_name:str, book_ID:int, publish_year:int, days_overdue=0):
+        super().__init__(book_name, book_ID, publish_year)
+        self.days_overdue = days_overdue
 
+    def track_overdue_books(self):
+        ls_overdue_books = [book for book in Books.all_books if book.is_borrowed]
+        if ls_overdue_books:
+            print(f'{self.book_name} is overdue')
+        else:
+            print('There are no overdue books')
