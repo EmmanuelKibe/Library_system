@@ -16,10 +16,15 @@ class Books:
         self.is_borrowed = False
 
         #Validation of the arguments
-        assert publish_year >= 1900, 'Invalid input. Try again'
-        assert type(book_name) == str, 'Input a proper book name'
-        assert type(book_ID) == int, 'Input a proper book ID'
-        assert type(publish_year) == int, 'Input a valid year'
+        if publish_year < 1900:
+            raise ValueError('Invalid input. Try again')
+        if not isinstance(book_name, str):
+            raise TypeError('Input a proper book name')
+        if not isinstance(book_ID, int):
+            raise TypeError('Input a proper book ID')
+        if not isinstance(publish_year, int):
+            raise TypeError('Input a valid year')
+
 
        #Actions to excecute
         if self.publish_year < 2010:
@@ -29,16 +34,22 @@ class Books:
 
     #A way to permanently remove books
     def remove_book(self):
-        Books.all_books.remove(self)
+        try:
+            Books.all_books.remove(self)
+        except ValueError:
+            print(f"{self.book_name} is not in the list of all books.")
 
     @classmethod
-    def list_from_bookfile(cls):
-        with open('Books.csv', 'r') as bf:
+    def list_from_bookfile(cls, filename='Books.csv'):
+        with open(filename, 'r') as bf:
             book_reader = csv.DictReader(bf)
-            books = list(book_reader)
+            for row in book_reader:
+                try:
+                    cls(book_name=row['book_name'].strip(), book_ID=int(row[' book_ID']), publish_year=int(row[' publish_year'].strip()))
+                except (ValueError, TypeError) as e:
+                    print(f"Error adding book from row {row}: {e}")
 
-        for book in books:
-          print(book)
+
 
         
     #Print readable output
@@ -83,7 +94,7 @@ class LibraryStaff:
         self.Staff_pay = Staff_pay
 
     def apply_raise(self):
-        self.pay = self.pay * self.raise_amt
+        self.Staff_pay = self.Staff_pay * self.raise_amt
         return self.pay
     
 
@@ -95,6 +106,9 @@ class overdue_books(Books):
     def track_overdue_books(self):
         ls_overdue_books = [book for book in Books.all_books if book.is_borrowed]
         if ls_overdue_books:
-            print(f'{self.book_name} is overdue')
+            print(f'{self.book_name} is overdue by {self.days_overdue} days')
         else:
             print('There are no overdue books')
+
+
+Books.list_from_bookfile('Books.csv')
